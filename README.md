@@ -1,0 +1,183 @@
+# Personal Embeds Service
+
+A simple, privacy-focused embeddable widget service for Notion dashboards, hosted on Cloudflare Workers.
+
+## Features
+
+- 🔒 Privacy-first: Host your own widgets without third-party tracking
+- 🚀 Fast: Powered by Cloudflare Workers edge computing
+- 🎨 Extensible: Easy to add new widget types
+- 📱 Notion-compatible: Works seamlessly with Notion's embed blocks
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Configure your Cloudflare account (if not already done):
+
+```bash
+npx wrangler login
+```
+
+3. Run locally for development:
+
+```bash
+npm run dev
+```
+
+4. Deploy to Cloudflare Workers:
+
+```bash
+npm run deploy
+```
+
+## Usage in Notion
+
+1. After deploying, visit your worker URL (e.g., `https://personal-embeds.your-subdomain.workers.dev`)
+2. Copy the widget URL for the widget you want (e.g., `/widget/weather`)
+3. In Notion, type `/embed`
+4. Paste the full widget URL
+5. The widget will load in your Notion page
+
+## Available Widgets
+
+### Weather Widget (weatherwidget.io)
+
+- **URL**: `/widget/weather`
+- **Optional Parameters**:
+  - `location`: The location identifier (default: "leith")
+  - `label`: Display label for the location (default: "leith, edinburgh")
+  - `days`: Number of days to show (default: "3")
+- **Example**: `/widget/weather?location=london&label=London, UK&days=5`
+- **Note**: This widget loads an external script from weatherwidget.io
+
+### Simple Weather Widget
+
+- **URL**: `/widget/weather-simple`
+- **Optional Parameters**:
+  - `city`: City name (default: "Edinburgh")
+  - `units`: Temperature units - "metric" or "imperial" (default: "metric")
+  - `theme`: Widget theme - "light" or "dark" (default: "light")
+- **Example**: `/widget/weather-simple?city=London&units=metric&theme=dark`
+- **Note**: This is a self-contained widget with emoji icons
+
+### Clock Widget
+
+- **URL**: `/widget/clock`
+- **Optional Parameters**:
+  - `timezone`: IANA timezone (default: "Europe/London")
+  - `format`: Time format - "12" or "24" (default: "24")
+  - `showDate`: Show date - "true" or "false" (default: "false")
+  - `theme`: Widget theme - "light" or "dark" (default: "light")
+- **Example**: `/widget/clock?timezone=America/New_York&format=12&showDate=true&theme=dark`
+
+## Adding New Widgets
+
+1. Create a new file in `src/widgets/` (e.g., `src/widgets/clock.js`):
+
+```javascript
+export async function clockHandler(request, url) {
+  const params = url.searchParams;
+  const timezone = params.get("timezone") || "UTC";
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body {
+          margin: 0;
+          padding: 20px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+        }
+        #clock {
+          font-size: 2em;
+          font-weight: 300;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="clock"></div>
+      <script>
+        function updateClock() {
+          const now = new Date();
+          const options = {
+            timeZone: '${timezone}',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          };
+          document.getElementById('clock').textContent = 
+            now.toLocaleTimeString('en-US', options);
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+      </script>
+    </body>
+    </html>
+  `;
+}
+```
+
+2. Import and register the handler in `src/index.js`:
+
+```javascript
+import { weatherHandler } from "./widgets/weather.js";
+import { clockHandler } from "./widgets/clock.js"; // Add this
+
+const widgetHandlers = {
+  weather: weatherHandler,
+  clock: clockHandler, // Add this
+};
+```
+
+3. Deploy the changes:
+
+```bash
+npm run deploy
+```
+
+## Widget Guidelines
+
+When creating widgets:
+
+- Keep them lightweight and fast-loading
+- Ensure they work well in iframes
+- Include proper responsive design
+- Handle errors gracefully
+- Consider adding query parameter support for customization
+
+## Security Considerations
+
+- The service uses permissive CORS headers to work with Notion
+- Be cautious about what data you expose through widgets
+- Consider adding authentication if hosting sensitive information
+- Review third-party scripts before including them in widgets
+
+## Troubleshooting
+
+### Widget not loading in Notion
+
+- Ensure your worker is deployed and accessible
+- Check that the URL is correct and includes the full path
+- Try refreshing the Notion page
+- Check browser console for any errors
+
+### Local development issues
+
+- Make sure you're logged into Cloudflare: `npx wrangler login`
+- Check that port 8787 is not in use
+- Try clearing your browser cache
+
+## License
+
+MIT

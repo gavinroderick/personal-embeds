@@ -1,0 +1,6 @@
+name = "personal-embeds"
+main = "src/index.js"
+compatibility_date = "2023-12-18"
+
+[env.production]
+name = "personal-embeds-production" 

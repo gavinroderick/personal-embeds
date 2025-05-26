@@ -1,0 +1,19 @@
+{
+  "name": "personal-embeds",
+  "version": "1.0.0",
+  "description": "Personal embeddable widgets for Notion dashboard",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish",
+    "format": "prettier --write ."
+  },
+  "keywords": ["cloudflare-workers", "embeds", "widgets"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "prettier": "^3.1.1",
+    "wrangler": "^3.22.1"
+  }
+} 
