@@ -45,7 +45,7 @@ npm run deploy
 
 ## Available Widgets
 
-### Weather Widget (weatherwidget.io)
+### Weather Widget
 
 - **URL**: `/widget/weather`
 - **Optional Parameters**:
@@ -53,17 +53,7 @@ npm run deploy
   - `label`: Display label for the location (default: "leith, edinburgh")
   - `days`: Number of days to show (default: "3")
 - **Example**: `/widget/weather?location=london&label=London, UK&days=5`
-- **Note**: This widget loads an external script from weatherwidget.io
-
-### Simple Weather Widget
-
-- **URL**: `/widget/weather-simple`
-- **Optional Parameters**:
-  - `city`: City name (default: "Edinburgh")
-  - `units`: Temperature units - "metric" or "imperial" (default: "metric")
-  - `theme`: Widget theme - "light" or "dark" (default: "light")
-- **Example**: `/widget/weather-simple?city=London&units=metric&theme=dark`
-- **Note**: This is a self-contained widget with emoji icons
+- **Note**: This widget uses weatherwidget.io for weather data
 
 ### Clock Widget
 
@@ -73,7 +63,9 @@ npm run deploy
   - `format`: Time format - "12" or "24" (default: "24")
   - `showDate`: Show date - "true" or "false" (default: "false")
   - `theme`: Widget theme - "light" or "dark" (default: "light")
-- **Example**: `/widget/clock?timezone=America/New_York&format=12&showDate=true&theme=dark`
+  - `location`: Location label to display (default: "Leith, Edinburgh")
+  - `showLocation`: Show location label - "true" or "false" (default: "true")
+- **Example**: `/widget/clock?timezone=America/New_York&format=12&showDate=true&theme=dark&location=New York`
 
 ## Adding New Widgets
 
