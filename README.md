@@ -8,6 +8,7 @@ A simple, privacy-focused embeddable widget service for Notion dashboards, hoste
 - 🚀 Fast: Powered by Cloudflare Workers edge computing
 - 🎨 Extensible: Easy to add new widget types
 - 📱 Notion-compatible: Works seamlessly with Notion's embed blocks
+- 💾 Smart Caching: Reduces API calls with configurable cache times per widget
 
 ## Setup
 
@@ -147,6 +148,22 @@ When creating widgets:
 - Include proper responsive design
 - Handle errors gracefully
 - Consider adding query parameter support for customization
+
+## Caching
+
+The service implements intelligent caching to minimize Cloudflare Workers invocations:
+
+- **Edge Cache**: Responses are cached at Cloudflare's edge locations
+- **Browser Cache**: Configurable browser caching per widget type
+- **Cache Headers**: Automatic cache status headers (HIT/MISS)
+
+### Default Cache Times:
+
+- Weather widget: 10 minutes (edge), 5 minutes (browser)
+- Clock widget: 1 second (minimal caching due to real-time nature)
+- Home page: 1 hour (edge), 30 minutes (browser)
+
+You can customize cache times in `src/cache-config.js`.
 
 ## Security Considerations
 

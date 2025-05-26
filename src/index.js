@@ -1,4 +1,5 @@
 // Import widget handlers
+import { getCacheConfig } from "./cache-config.js";
 import { clockHandler } from "./widgets/clock.js";
 import { weatherHandler } from "./widgets/weather.js";
 
@@ -30,6 +31,24 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Try to get cached response for GET requests
+    if (request.method === "GET") {
+      const cache = caches.default;
+      const cacheKey = new Request(url.toString(), request);
+      const cachedResponse = await cache.match(cacheKey);
+
+      if (cachedResponse) {
+        // Return cached response with cache hit header
+        const headers = new Headers(cachedResponse.headers);
+        headers.set("X-Cache-Status", "HIT");
+        return new Response(cachedResponse.body, {
+          status: cachedResponse.status,
+          statusText: cachedResponse.statusText,
+          headers: headers,
+        });
+      }
+    }
+
     // Route: /widget/{widgetName}
     const widgetMatch = path.match(/^\/widget\/([^\/]+)\/?$/);
     if (widgetMatch) {
@@ -39,12 +58,25 @@ export default {
       if (handler) {
         try {
           const widgetHtml = await handler(request, url);
-          return new Response(widgetHtml, {
+          const cacheSettings = getCacheConfig(widgetName);
+
+          const response = new Response(widgetHtml, {
             headers: {
               ...corsHeaders,
               "Content-Type": "text/html;charset=UTF-8",
+              "Cache-Control": `public, max-age=${cacheSettings.browserCache}, s-maxage=${cacheSettings.ttl}`,
+              "X-Cache-Status": "MISS",
             },
           });
+
+          // Cache the response in Cloudflare's edge cache
+          if (request.method === "GET" && cacheSettings.ttl > 0) {
+            const cache = caches.default;
+            const cacheKey = new Request(url.toString(), request);
+            ctx.waitUntil(cache.put(cacheKey, response.clone()));
+          }
+
+          return response;
         } catch (error) {
           return new Response(`Error rendering widget: ${error.message}`, {
             status: 500,
@@ -144,12 +176,24 @@ export default {
         </body>
         </html>
       `;
-      return new Response(html, {
+      const cacheSettings = getCacheConfig("home");
+      const response = new Response(html, {
         headers: {
           ...corsHeaders,
           "Content-Type": "text/html;charset=UTF-8",
+          "Cache-Control": `public, max-age=${cacheSettings.browserCache}, s-maxage=${cacheSettings.ttl}`,
+          "X-Cache-Status": "MISS",
         },
       });
+
+      // Cache the home page
+      if (request.method === "GET" && cacheSettings.ttl > 0) {
+        const cache = caches.default;
+        const cacheKey = new Request(url.toString(), request);
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+      }
+
+      return response;
     }
 
     // 404 for all other routes
