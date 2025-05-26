@@ -5,10 +5,14 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "format": "prettier --write ."
   },
-  "keywords": ["cloudflare-workers", "embeds", "widgets"],
+  "keywords": [
+    "cloudflare-workers",
+    "embeds",
+    "widgets"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -16,4 +20,4 @@
     "prettier": "^3.1.1",
     "wrangler": "^3.22.1"
   }
-} 
+}

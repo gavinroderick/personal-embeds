@@ -1,8 +1,10 @@
 // Import widget handlers
 import { clockHandler } from "./widgets/clock.js";
 import { weatherDebugHandler } from "./widgets/weather-debug.js";
+import { weatherEmbedHandler } from "./widgets/weather-embed.js";
 import { weatherFixedHandler } from "./widgets/weather-fixed.js";
 import { weatherSimpleHandler } from "./widgets/weather-simple.js";
+import { weatherStyledHandler } from "./widgets/weather-styled.js";
 import { weatherHandler } from "./widgets/weather.js";
 
 // Widget registry - add new widgets here
