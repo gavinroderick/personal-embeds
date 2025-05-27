@@ -36,6 +36,19 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Handle favicon.ico requests
+    if (path === "/favicon.ico") {
+      // Return 204 No Content for favicon requests
+      // This prevents browsers from repeatedly requesting it
+      return new Response(null, {
+        status: 204,
+        headers: {
+          ...corsHeaders,
+          "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+        },
+      });
+    }
+
     // Try to get cached response for GET requests
     let cacheStatus = "MISS";
     if (request.method === "GET") {
