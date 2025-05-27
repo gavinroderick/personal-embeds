@@ -1,5 +1,6 @@
 // Import widget handlers
 import { getCacheConfig } from "./cache-config.js";
+import { getLogger, logRequestMetric } from "./logger.js";
 import { clockHandler } from "./widgets/clock.js";
 import { weatherHandler } from "./widgets/weather.js";
 
@@ -23,8 +24,12 @@ const corsHeaders = {
 // Main request handler
 export default {
   async fetch(request, env, ctx) {
+    const startTime = Date.now();
     const url = new URL(request.url);
     const path = url.pathname;
+
+    // Initialize logger with execution context
+    const logger = getLogger(ctx, env);
 
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
@@ -32,15 +37,33 @@ export default {
     }
 
     // Try to get cached response for GET requests
+    let cacheStatus = "MISS";
     if (request.method === "GET") {
       const cache = caches.default;
       const cacheKey = new Request(url.toString(), request);
       const cachedResponse = await cache.match(cacheKey);
 
       if (cachedResponse) {
+        cacheStatus = "HIT";
         // Return cached response with cache hit header
         const headers = new Headers(cachedResponse.headers);
         headers.set("X-Cache-Status", "HIT");
+
+        // Log the cache hit
+        const responseTime = Date.now() - startTime;
+        const widgetMatch = path.match(/^\/widget\/([^\/]+)\/?$/);
+        logRequestMetric(logger, {
+          path,
+          widgetType: widgetMatch
+            ? widgetMatch[1]
+            : path === "/"
+              ? "home"
+              : "unknown",
+          cacheStatus: "HIT",
+          responseTime,
+          statusCode: cachedResponse.status,
+        });
+
         return new Response(cachedResponse.body, {
           status: cachedResponse.status,
           statusText: cachedResponse.statusText,
@@ -76,14 +99,45 @@ export default {
             ctx.waitUntil(cache.put(cacheKey, response.clone()));
           }
 
+          // Log the successful widget request
+          const responseTime = Date.now() - startTime;
+          logRequestMetric(logger, {
+            path,
+            widgetType: widgetName,
+            cacheStatus: "MISS",
+            responseTime,
+            statusCode: 200,
+          });
+
           return response;
         } catch (error) {
+          // Log the error
+          const responseTime = Date.now() - startTime;
+          logRequestMetric(logger, {
+            path,
+            widgetType: widgetName,
+            cacheStatus: "MISS",
+            responseTime,
+            statusCode: 500,
+            error,
+          });
+
           return new Response(`Error rendering widget: ${error.message}`, {
             status: 500,
             headers: corsHeaders,
           });
         }
       } else {
+        // Log 404
+        const responseTime = Date.now() - startTime;
+        logRequestMetric(logger, {
+          path,
+          widgetType: widgetName,
+          cacheStatus: "MISS",
+          responseTime,
+          statusCode: 404,
+        });
+
         return new Response("Widget not found", {
           status: 404,
           headers: corsHeaders,
@@ -193,10 +247,29 @@ export default {
         ctx.waitUntil(cache.put(cacheKey, response.clone()));
       }
 
+      // Log home page request
+      const responseTime = Date.now() - startTime;
+      logRequestMetric(logger, {
+        path,
+        widgetType: "home",
+        cacheStatus: "MISS",
+        responseTime,
+        statusCode: 200,
+      });
+
       return response;
     }
 
     // 404 for all other routes
+    const responseTime = Date.now() - startTime;
+    logRequestMetric(logger, {
+      path,
+      widgetType: "unknown",
+      cacheStatus: "MISS",
+      responseTime,
+      statusCode: 404,
+    });
+
     return new Response("Not found", {
       status: 404,
       headers: corsHeaders,

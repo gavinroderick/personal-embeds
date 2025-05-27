@@ -1,11 +1,13 @@
 name = "personal-embeds"
 main = "src/index.js"
-compatibility_date = "2023-12-18"
+compatibility_date = "2023-12-01"
+
+# For local development only - remove or comment out before committing
+[vars]
+BETTERSTACK_SOURCE_TOKEN = "Z2BjBhLQ3ub84LE94nx6cwa9"
+
+# For production, use secrets instead:
+# Run: npx wrangler secret put BETTERSTACK_SOURCE_TOKEN
 
 [env.production]
 name = "personal-embeds-production" 
-
-# wrangler.toml (wrangler v3.88.0^)
-[observability.logs]
-enabled = true
-

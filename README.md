@@ -12,6 +12,7 @@ A simple, privacy-focused embeddable widget service for Notion dashboards, hoste
 - 📱 Notion-compatible: Works seamlessly with Notion's embed blocks
 - 💾 Smart Caching: Reduces API calls with configurable cache times per widget
 - 📊 Monitoring with BetterStack
+- 📈 Metrics Tracking: Monitor cache hits vs misses to optimize costs
 
 ## Setup
 
@@ -27,13 +28,25 @@ npm install
 npx wrangler login
 ```
 
-3. Run locally for development:
+3. (Optional) Configure BetterStack logging:
+
+   a. Create a source in [BetterStack Logs](https://logs.betterstack.com/)
+
+   b. Add your source token as a Cloudflare Workers secret:
+
+   ```bash
+   npx wrangler secret put BETTERSTACK_SOURCE_TOKEN
+   ```
+
+   c. Paste your source token when prompted
+
+4. Run locally for development:
 
 ```bash
 npm run dev
 ```
 
-4. Deploy to Cloudflare Workers:
+5. Deploy to Cloudflare Workers:
 
 ```bash
 npm run deploy
@@ -189,6 +202,58 @@ You can customize cache times in `src/cache-config.js`.
 - Make sure you're logged into Cloudflare: `npx wrangler login`
 - Check that port 8787 is not in use
 - Try clearing your browser cache
+
+## Metrics & Monitoring
+
+When BetterStack logging is configured, the service tracks the following metrics for each request:
+
+- **`cache_status`**: Whether the request was served from cache ("HIT") or required a new invocation ("MISS")
+- **`is_invocation`**: Boolean flag indicating if this request cost a Cloudflare Workers invocation
+- **`widget_type`**: Which widget was requested (weather, clock, home, etc.)
+- **`response_time_ms`**: How long the request took to process
+- **`status_code`**: HTTP response status code
+- **`path`**: The requested URL path
+
+### Analyzing Your Costs
+
+In BetterStack, you can create queries to analyze your Cloudflare Workers usage:
+
+1. **Cache Hit Rate by Widget**:
+
+   ```sql
+   SELECT
+     widget_type,
+     COUNT(*) as total_requests,
+     SUM(CASE WHEN cache_status = 'HIT' THEN 1 ELSE 0 END) as cache_hits,
+     ROUND(SUM(CASE WHEN cache_status = 'HIT' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) as hit_rate_percent
+   FROM logs
+   WHERE metric = 'widget_request'
+   GROUP BY widget_type
+   ```
+
+2. **Invocations vs Cached Requests Over Time**:
+
+   ```sql
+   SELECT
+     DATE_TRUNC('hour', timestamp) as hour,
+     SUM(CASE WHEN is_invocation THEN 1 ELSE 0 END) as invocations,
+     SUM(CASE WHEN NOT is_invocation THEN 1 ELSE 0 END) as cached_requests
+   FROM logs
+   WHERE metric = 'widget_request'
+   GROUP BY hour
+   ORDER BY hour DESC
+   ```
+
+3. **Average Response Time by Cache Status**:
+   ```sql
+   SELECT
+     cache_status,
+     AVG(response_time_ms) as avg_response_time,
+     PERCENTILE(response_time_ms, 0.95) as p95_response_time
+   FROM logs
+   WHERE metric = 'widget_request'
+   GROUP BY cache_status
+   ```
 
 ## License
 
