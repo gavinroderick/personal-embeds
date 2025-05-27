@@ -1,11 +1,8 @@
 import { Logtail } from "@logtail/edge";
 
-const logger = new Logtail(BETTERSTACK_SOURCE_TOKEN, {
-  endpoint: "https://s1324901.eu-nbg-2.betterstackdata.com",
-});
-
 export function getLogger(ctx, env) {
   const BETTERSTACK_SOURCE_TOKEN = env?.BETTERSTACK_SOURCE_TOKEN;
+  const BETTERSTACK_ENDPOINT = env?.BETTERSTACK_ENDPOINT;
 
   if (!BETTERSTACK_SOURCE_TOKEN) {
     // Return a no-op logger if no token is configured
@@ -16,6 +13,11 @@ export function getLogger(ctx, env) {
       debug: () => {},
     };
   }
+
+  // Create logger instance with the token from env
+  const logger = new Logtail(BETTERSTACK_SOURCE_TOKEN, {
+    endpoint: BETTERSTACK_ENDPOINT,
+  });
 
   // Return logger with execution context
   return logger.withExecutionContext(ctx);

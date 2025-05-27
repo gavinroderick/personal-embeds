@@ -5,9 +5,9 @@ compatibility_date = "2023-12-01"
 # For local development only - remove or comment out before committing
 [vars]
 BETTERSTACK_SOURCE_TOKEN = "Z2BjBhLQ3ub84LE94nx6cwa9"
+BETTERSTACK_ENDPOINT = "https://s1324901.eu-nbg-2.betterstackdata.com"
 
 # For production, use secrets instead:
-# Run: npx wrangler secret put BETTERSTACK_SOURCE_TOKEN
 
 [env.production]
 name = "personal-embeds-production" 
