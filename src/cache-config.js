@@ -1,15 +1,15 @@
 // Cache configuration per widget type
 export const cacheConfig = {
-  // Weather widget - cache for 1 hour (weather doesn't change that fast)
+  // Weather widget - static HTML/JS that fetches data client-side
   weather: {
-    ttl: 3600, // 1 hour - aggressive caching for Notion
-    browserCache: 3600, // 1 hour browser cache
+    ttl: 604800, // 7 days - it's just static code
+    browserCache: 86400, // 24 hours browser cache
   },
 
-  // Clock widget - cache for 30 seconds (balance between updates and invocations)
+  // Clock widget - static HTML/JS that runs entirely client-side
   clock: {
-    ttl: 30, // 30 seconds - more reasonable for Notion embeds
-    browserCache: 10, // 10 seconds browser cache
+    ttl: 604800, // 7 days - it's just static code
+    browserCache: 86400, // 24 hours browser cache
   },
 
   // Home page - cache for 24 hours
@@ -20,8 +20,8 @@ export const cacheConfig = {
 
   // Default cache settings
   default: {
-    ttl: 300, // 5 minutes
-    browserCache: 60, // 1 minute browser cache
+    ttl: 86400, // 24 hours
+    browserCache: 3600, // 1 hour browser cache
   },
 };
 
