@@ -47,7 +47,7 @@ export default {
         cacheStatus = "HIT";
         // Return cached response with cache hit header
         const headers = new Headers(cachedResponse.headers);
-        headers.set("X-Cache-Status", "HIT");
+        headers.set("X-Cache-Status", cacheStatus);
 
         // Log the cache hit
         const responseTime = Date.now() - startTime;
@@ -59,7 +59,7 @@ export default {
             : path === "/"
               ? "home"
               : "unknown",
-          cacheStatus: "HIT",
+          cacheStatus: cacheStatus,
           responseTime,
           statusCode: cachedResponse.status,
         });
@@ -88,7 +88,7 @@ export default {
               ...corsHeaders,
               "Content-Type": "text/html;charset=UTF-8",
               "Cache-Control": `public, max-age=${cacheSettings.browserCache}, s-maxage=${cacheSettings.ttl}`,
-              "X-Cache-Status": "MISS",
+              "X-Cache-Status": cacheStatus,
             },
           });
 
@@ -104,7 +104,7 @@ export default {
           logRequestMetric(logger, {
             path,
             widgetType: widgetName,
-            cacheStatus: "MISS",
+            cacheStatus: cacheStatus,
             responseTime,
             statusCode: 200,
           });
@@ -116,7 +116,7 @@ export default {
           logRequestMetric(logger, {
             path,
             widgetType: widgetName,
-            cacheStatus: "MISS",
+            cacheStatus: cacheStatus,
             responseTime,
             statusCode: 500,
             error,
@@ -133,7 +133,7 @@ export default {
         logRequestMetric(logger, {
           path,
           widgetType: widgetName,
-          cacheStatus: "MISS",
+          cacheStatus: cacheStatus,
           responseTime,
           statusCode: 404,
         });
@@ -236,7 +236,7 @@ export default {
           ...corsHeaders,
           "Content-Type": "text/html;charset=UTF-8",
           "Cache-Control": `public, max-age=${cacheSettings.browserCache}, s-maxage=${cacheSettings.ttl}`,
-          "X-Cache-Status": "MISS",
+          "X-Cache-Status": cacheStatus,
         },
       });
 
@@ -252,7 +252,7 @@ export default {
       logRequestMetric(logger, {
         path,
         widgetType: "home",
-        cacheStatus: "MISS",
+        cacheStatus: cacheStatus,
         responseTime,
         statusCode: 200,
       });
@@ -265,7 +265,7 @@ export default {
     logRequestMetric(logger, {
       path,
       widgetType: "unknown",
-      cacheStatus: "MISS",
+      cacheStatus: cacheStatus,
       responseTime,
       statusCode: 404,
     });
