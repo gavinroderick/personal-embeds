@@ -1,5 +1,7 @@
 # Personal Embeds Service
 
+[![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/1yc25.svg)](https://uptime.betterstack.com/?utm_source=status_badge)
+
 A simple, privacy-focused embeddable widget service for Notion dashboards, hosted on Cloudflare Workers.
 
 ## Features
@@ -9,6 +11,7 @@ A simple, privacy-focused embeddable widget service for Notion dashboards, hoste
 - 🎨 Extensible: Easy to add new widget types
 - 📱 Notion-compatible: Works seamlessly with Notion's embed blocks
 - 💾 Smart Caching: Reduces API calls with configurable cache times per widget
+- 📊 Monitoring with BetterStack
 
 ## Setup
 
