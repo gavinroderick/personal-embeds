@@ -4,3 +4,8 @@ compatibility_date = "2023-12-18"
 
 [env.production]
 name = "personal-embeds-production" 
+
+# wrangler.toml (wrangler v3.88.0^)
+[observability.logs]
+enabled = true
+
