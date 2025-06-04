@@ -4,6 +4,9 @@
 
 A simple, privacy-focused embeddable widget service for Notion dashboards, hosted on Cloudflare Workers.
 
+> [!NOTE]  
+> This code is a result of heavy collaboration with Cursor AI. It's not 100% generated, as it needed a lot of tweaking to do exactly what I wanted, but the bones of it were suggestions from chat
+
 ## Features
 
 - 🔒 Privacy-first: Host your own widgets without third-party tracking
